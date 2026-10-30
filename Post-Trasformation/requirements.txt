@@ -1,0 +1,5 @@
+openai
+jsonschema
+python-dotenv
+jupyterlab
+ipykernel

@@ -1,0 +1,100 @@
+{
+  "taxonomy": [
+    {
+      "situation": "unexpected field in request",
+      "status": 400,
+      "retryable": false,
+      "reject_at": "gateway",
+      "why": "caller can remove it; also a data protection control"
+    },
+    {
+      "situation": "missing idempotency key",
+      "status": 400,
+      "retryable": false,
+      "reject_at": "gateway",
+      "why": "without it one timeout creates two assessments"
+    },
+    {
+      "situation": "replayed key, same body",
+      "status": 202,
+      "retryable": null,
+      "reject_at": "gateway",
+      "why": "return the original \u2014 correct client behaviour"
+    },
+    {
+      "situation": "replayed key, different body",
+      "status": 409,
+      "retryable": false,
+      "reject_at": "gateway",
+      "why": "a genuine conflict; their bug"
+    },
+    {
+      "situation": "document unreadable",
+      "status": 422,
+      "retryable": false,
+      "reject_at": "upstream",
+      "why": "caller can supply a clearer scan"
+    },
+    {
+      "situation": "extraction timeout",
+      "status": 504,
+      "retryable": true,
+      "reject_at": "upstream",
+      "why": "ours, transient \u2014 give a Retry-After"
+    },
+    {
+      "situation": "content filter blocked",
+      "status": 422,
+      "retryable": false,
+      "reject_at": "upstream",
+      "why": "will not succeed on retry; name the category"
+    },
+    {
+      "situation": "model at capacity",
+      "status": 503,
+      "retryable": true,
+      "reject_at": "upstream",
+      "why": "not 429 \u2014 that is our quota on them"
+    },
+    {
+      "situation": "model returned invalid JSON",
+      "status": 500,
+      "retryable": true,
+      "reject_at": "upstream",
+      "why": "our problem, not the caller's; should page"
+    },
+    {
+      "situation": "no policy retrieved",
+      "status": 200,
+      "retryable": null,
+      "reject_at": "-",
+      "why": "not an error \u2014 a refusal. needs_human=true"
+    }
+  ],
+  "streaming": {
+    "POST /case-application": "202 + ticket, async, never streams",
+    "GET /case-assessments/{id}/narrative": "streams prose to a human",
+    "rule": "never stream the structured decision profile"
+  },
+  "retryable_clients": {
+    "naive \u2014 retry anything non-2xx": {
+      "calls": 1697,
+      "wasted": 474,
+      "lost": 0,
+      "usd_wasted": 6.64
+    },
+    "status code only \u2014 retry 5xx": {
+      "calls": 1246,
+      "wasted": 78,
+      "lost": 35,
+      "usd_wasted": 1.09
+    },
+    "reads `retryable`": {
+      "calls": 1223,
+      "wasted": 0,
+      "lost": 0,
+      "usd_wasted": 0.0
+    }
+  },
+  "mode": "live"
+}
